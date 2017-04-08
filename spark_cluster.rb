@@ -1,15 +1,15 @@
-ssh_lib = ENV["HOME"] + "/net-ssh/lib"
+ssh_lib = File.join(ENV["HOME"], "/net-ssh/lib")
 
 $LOAD_PATH.unshift(ssh_lib)
 
 
 require 'net/ssh'
 
-def provision_vms
+def provision_vms template_file
   vm_ids = []
   number_of_vms = 16
   number_of_vms.times do
-    output = `onevm create /home/ioi600/spark_vm.template`
+    output = `onevm create "#{template_file}"`
     vm_id = output.chomp!.split(':')[1].strip!
     vm_ids << vm_id
     puts "VM with id #{vm_id} created"
@@ -71,8 +71,13 @@ def start_bandwidth_throttler vm_ips
     puts res
   end
 
-def start
-  ips = provision_vms
+def start template, vms_list_file
+  ips = provision_vms template
+  File.truncate("#{vms_list_file}", 0) unless File.zero?("#{vms_list_file}")
+  File.open(vms_list_file, 'a') do |f|
+    f.puts "Node\tRole"
+    f.puts "#{ips.first}\tmaster"
+  end
   ips.each_with_index do |ip, idx|
     cmd = <<-eos
     mkdir /home/ioi600/.ssh
@@ -81,15 +86,21 @@ def start
     chmod 0600 authorized_keys
     eos
     next if idx == 0
+    Thread.new {File.open("#{vms_list_file}", 'a') do |f|
+      f.puts "#{ip}\worker"
+    end}.join
     ssh = Net::SSH.start("#{ip}", 'root')
     ssh.exec!(cmd)
   end
+  file.close
   configure_and_start_spark_cluster ips
   start_bandwidth_throttler ips
 end
 
 if __FILE__ == $PROGRAM_NAME
-  start
+  vm_template = ARGV.shift
+  vms_list_file = ARGV.shift
+  start vm_template, vms_list_file
 else
   raise "Uable to run script"
 end
