@@ -92,7 +92,6 @@ def start template, vms_list_file
     ssh = Net::SSH.start("#{ip}", 'root')
     ssh.exec!(cmd)
   end
-  file.close
   configure_and_start_spark_cluster ips
   start_bandwidth_throttler ips
 end
