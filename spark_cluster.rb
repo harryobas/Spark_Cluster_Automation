@@ -5,10 +5,10 @@ $LOAD_PATH.unshift(ssh_lib)
 
 require 'net/ssh'
 
-def provision_vms template_file
+def provision_vms template_file, vm_num
   vm_ids = []
-  number_of_vms = 16
-  number_of_vms.times do
+
+  vm_num.to_i.times do
     output = `onevm create "#{template_file}"`
     vm_id = output.chomp!.split(':')[1].strip!
     vm_ids << vm_id
@@ -71,8 +71,8 @@ def start_bandwidth_throttler vm_ips
     puts res
   end
 
-def start template, vms_list_file
-  ips = provision_vms template
+def start template, vms_list_file, vm_number
+  ips = provision_vms template, vm_number
   File.truncate("#{vms_list_file}", 0) unless File.zero?("#{vms_list_file}")
   File.open(vms_list_file, 'a') do |f|
     f.puts "Node\tRole"
@@ -99,7 +99,8 @@ end
 if __FILE__ == $PROGRAM_NAME
   vm_template = ARGV.shift
   vms_list_file = ARGV.shift
-  start vm_template, vms_list_file
+  vm_number = ARGV.shift
+  start vm_template, vms_list_file, vm_number
 else
   raise "Uable to run script"
 end
