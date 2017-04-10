@@ -1,1 +1,3 @@
-Spark_Cluster_Automation is a simple ruby script that automates the configuration and lunch of Apache spark cluster on an opennebula powered cloud.
+opennebula-spark-cluster
+
+A simple utility that allows automation of apache spark standalone cluster configuration and lunch on opennebula cloud.
