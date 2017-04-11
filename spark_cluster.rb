@@ -32,7 +32,17 @@ end
 def configure_and_start_spark_cluster vm_ips
   pub_key = get_master_public_key vm_ips.first
   vm_ips.each {|vm| set_authorized_key(vm, pub_key)}
+  vm_ips.each {|vm| configure_workers(vm, vm_ips)}
   start_spark vm_ips.first
+end
+
+def configure_workers worker, cluster_nodes
+  cmd = <<-eos
+  cd /home/ioi600/spark-2.0.2/conf
+  echo "#{worker} >> slaves.template"
+  eos
+  ssh = Net::SSH.start("#{cluster_nodes.first}", 'root')
+  ssh.exec!(cmd)
 end
 
 def start_spark master_ip
