@@ -13,7 +13,7 @@ Files = {
 }
 
 Usernames = {
-  :root_usr_name => 'root',
+  :root_usr => 'root',
   :usr_name => 'ioi600'
 }
 
@@ -84,7 +84,7 @@ def start_bandwidth_throttler vm_pool
     cd bandwidth-throttler
     python shape_traffic_server.py --port #{vm_port}
     eos
-    ssh = Net::SSH.start("#{vm}", "#{Usernames[:usr_name]}")
+    ssh = Net::SSH.start("#{vm}", "#{Usernames[:root_usr]}")
     res = ssh.exec!(cmd)
     puts res
   end
