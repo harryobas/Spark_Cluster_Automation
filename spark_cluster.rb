@@ -87,6 +87,7 @@ def start_bandwidth_throttler vm_pool
     ssh = Net::SSH.start("#{vm}", "#{Usernames[:root_usr]}")
     res = ssh.exec!(cmd)
     puts res
+    puts "bandwidth-throttler server started on host #{vm}"
   end
 end
 
