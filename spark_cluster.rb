@@ -97,6 +97,7 @@ def start
   vm_reachable? vm_pool
     begin
       configure_and_start_spark_cluster vm_pool
+      puts "spark cluster configured and started successfully"
     rescue StandardError => e
       puts "Error configuring and starting spark cluster"
       puts "#{e.message}"
